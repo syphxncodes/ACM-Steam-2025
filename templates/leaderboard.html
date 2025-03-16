@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Leaderboard</title>
+</head>
+<body>
+    <h1>Leaderboard</h1>
+    <table border="1">
+        <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Score</th>
+            <th>Questions Asked</th>
+            <th>Time Taken</th>
+        </tr>
+        {% for player in players %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ player.player_name }}</td>
+            <td>{{ player.score }}</td>
+            <td>{{ player.questions }}</td>
+            <td>{{ "%.2f"|format(player.time_taken) }} sec</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

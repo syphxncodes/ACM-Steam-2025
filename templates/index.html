@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeadUp with AI</title>
+    <script>
+        function startGame() {
+            fetch("/start_game", { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("game-status").innerText = data.message;
+                document.getElementById("hints").innerHTML = ""; 
+                document.getElementById("result").innerHTML = "";
+            });
+        }
+
+        function askHint() {
+            let question = document.getElementById("question").value;
+
+            fetch("/ask_hint", {
+                method: "POST",
+                body: JSON.stringify({ question: question }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let hintsDiv = document.getElementById("hints");
+                hintsDiv.innerHTML += `<p>${data.hint}</p>`;
+            });
+        }
+
+        function submitAnswer() {
+            let answer = document.getElementById("answer").value;
+
+            fetch("/submit_answer", {
+                method: "POST",
+                body: JSON.stringify({ answer: answer }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultDiv = document.getElementById("result");
+                resultDiv.innerHTML = data.message;
+
+                if (data.correct) {
+                    document.getElementById("answer").value = ""; // Clear input
+                    document.getElementById("hints").innerHTML = ""; // Clear hints
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>HeadUp with AI</h1>
+    <p>Ask AI hints and guess the word!</p>
+    
+    <button onclick="startGame()">Start Game</button>
+    <p id="game-status"></p>
+
+    <h3>Ask AI for a Hint</h3>
+    <input type="text" id="question" placeholder="Type your question...">
+    <button onclick="askHint()">Ask Hint</button>
+    <div id="hints"></div>
+
+    <h3>Submit Your Answer</h3>
+    <input type="text" id="answer" placeholder="Type your answer...">
+    <button onclick="submitAnswer()">Submit Answer</button>
+    <div id="result"></div>
+</body>
+</html>
