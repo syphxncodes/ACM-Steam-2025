@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="profile-container">
+    <h2>Welcome, {{ user.username }}!</h2>
+    
+    <div class="stats-container">
+        <h3>Your Game Statistics</h3>
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">Games Played:</span>
+                <span class="stat-value">{{ games|length }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Games Completed:</span>
+                <span class="stat-value">{{ games|selectattr('completed', 'equalto', true)|list|length }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Total Score:</span>
+                <span class="stat-value">{{ games|sum(attribute='score') }}</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-history">
+        <h3>Game History</h3>
+        {% if games %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Score</th>
+                    <th>Words Guessed</th>
+                    <th>Hints Used</th>
+                    <th>Time (seconds)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in games %}
+                <tr>
+                    <td>{{ game.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ game.score }}</td>
+                    <td>{{ game.words_guessed }}/10</td>
+                    <td>{{ game.total_hints }}</td>
+                    <td>{{ "%.2f"|format(game.time_taken) }}</td>
+                    <td>{{ "Completed" if game.completed else "Incomplete" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>You haven't played any games yet.</p>
+        {% endif %}
+    </div>
+    
+    <div class="action-buttons">
+        <a href="{{ url_for('index') }}" class="button">Play New Game</a>
+    </div>
+</div>
+{% endblock %}

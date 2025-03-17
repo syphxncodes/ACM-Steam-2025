@@ -1,71 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeadUp with AI</title>
-    <script>
-        function startGame() {
-            fetch("/start_game", { method: "POST" })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("game-status").innerText = data.message;
-                document.getElementById("hints").innerHTML = ""; 
-                document.getElementById("result").innerHTML = "";
-            });
-        }
+{% extends "base.html" %}
 
-        function askHint() {
-            let question = document.getElementById("question").value;
-
-            fetch("/ask_hint", {
-                method: "POST",
-                body: JSON.stringify({ question: question }),
-                headers: { "Content-Type": "application/json" }
-            })
-            .then(response => response.json())
-            .then(data => {
-                let hintsDiv = document.getElementById("hints");
-                hintsDiv.innerHTML += `<p>${data.hint}</p>`;
-            });
-        }
-
-        function submitAnswer() {
-            let answer = document.getElementById("answer").value;
-
-            fetch("/submit_answer", {
-                method: "POST",
-                body: JSON.stringify({ answer: answer }),
-                headers: { "Content-Type": "application/json" }
-            })
-            .then(response => response.json())
-            .then(data => {
-                let resultDiv = document.getElementById("result");
-                resultDiv.innerHTML = data.message;
-
-                if (data.correct) {
-                    document.getElementById("answer").value = ""; // Clear input
-                    document.getElementById("hints").innerHTML = ""; // Clear hints
-                }
-            });
-        }
-    </script>
-</head>
-<body>
+{% block content %}
+<div class="game-container">
     <h1>HeadUp with AI</h1>
-    <p>Ask AI hints and guess the word!</p>
+    <p class="tagline">The tech word guessing game powered by AI</p>
     
-    <button onclick="startGame()">Start Game</button>
+    {% if current_user.is_authenticated %}
+    <button id="start-button" onclick="startGame()">Start New Game</button>
     <p id="game-status"></p>
 
-    <h3>Ask AI for a Hint</h3>
-    <input type="text" id="question" placeholder="Type your question...">
-    <button onclick="askHint()">Ask Hint</button>
-    <div id="hints"></div>
+    <div id="game-area" style="display:none;">
+        <h2 id="current-word">Word 1</h2>
 
-    <h3>Submit Your Answer</h3>
-    <input type="text" id="answer" placeholder="Type your answer...">
-    <button onclick="submitAnswer()">Submit Answer</button>
-    <div id="result"></div>
-</body>
-</html>
+        <div class="section">
+            <input type="text" id="question" placeholder="Ask AI for a hint...">
+            <button onclick="askHint()">Get Hint</button>
+            <div id="hints"></div>
+        </div>
+
+        <div class="section">
+            <input type="text" id="answer" placeholder="Enter your guess...">
+            <button onclick="submitAnswer()">Submit Answer</button>
+            <div id="result"></div>
+        </div>
+    </div>
+    {% else %}
+    <div class="auth-prompt">
+        <p>Please <a href="{{ url_for('login') }}">login</a> or <a href="{{ url_for('signup') }}">sign up</a> to play the game.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% if current_user.is_authenticated %}
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endif %}
+{% endblock %}
