@@ -36,8 +36,8 @@ def load_user(user_id):
 WORDS_POOL = ["Python", "Algorithm", "Database", "Neural Network", "Encryption",
               "Compiler", "Blockchain", "Cloud Computing", "Big Data", "Cybersecurity",
               "Artificial Intelligence", "Machine Learning", "Internet of Things", "Quantum Computing",
-              "API", "Bug", "Cache", "Data Structure", "Debugging", "Front-end",
-              "Back-end", "Full Stack", "GraphQL", "HTTP", "Kernel",
+              "API", "Bug", "Cache", "Data Structure", "Debugging", "Frontend",
+              "Backend", "Full Stack", "GraphQL", "HTTP", "Kernel",
               "Linux", "Middleware", "Node.js", "Open Source", "React"]
 
 def get_ai_hint(word, question):
