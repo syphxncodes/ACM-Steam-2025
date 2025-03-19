@@ -1,5 +1,6 @@
 // Game state tracking
 let currentWordNumber = 1;
+let totalWords = 10;
 let gameStartTime = 0;
 
 // DOM elements
@@ -30,15 +31,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function startGame() {
     gameStartTime = Date.now();
-    currentWordNumber = 1;
     
     fetch("/start_game", { method: "POST" })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(data => {
+                    throw new Error(data.error || "Failed to start game");
+                });
+            }
+            return res.json();
+        })
         .then(data => {
             document.getElementById("game-status").innerText = data.message;
             document.getElementById("game-area").style.display = "block";
             document.getElementById("hints").innerHTML = "";
             document.getElementById("result").innerHTML = "";
+            
+            // Hide buttons when game starts
+            if (document.getElementById("start-button")) {
+                document.getElementById("start-button").style.display = "none";
+            }
+            if (document.getElementById("continue-button")) {
+                document.getElementById("continue-button").style.display = "none";
+            }
+            if (document.getElementById("end-button")) {
+                document.getElementById("end-button").style.display = "none";
+            }
+            
+            // Update word counter based on server response
+            // For continuing games, this would be different than 1
+            currentWordNumber = data.currentIndex || session["current_index"] + 1 || 1;
             document.getElementById("current-word").innerText = `Word ${currentWordNumber} of 10`;
             
             // Focus on question input
@@ -48,8 +70,47 @@ function startGame() {
         })
         .catch(error => {
             console.error("Error starting game:", error);
-            document.getElementById("game-status").innerText = "Error starting game. Please try again.";
+            document.getElementById("game-status").innerText = error.message || "Error starting game. Please try again.";
         });
+}
+
+function endGame() {
+    if (confirm("Are you sure you want to end your game? This cannot be undone.")) {
+        fetch('/end_game', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || "Failed to end game");
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('game-status').textContent = data.message;
+            // Hide game area and buttons
+            document.getElementById('game-area').style.display = 'none';
+            if (document.getElementById("continue-button")) {
+                document.getElementById("continue-button").style.display = 'none';
+            }
+            if (document.getElementById("end-button")) {
+                document.getElementById("end-button").style.display = 'none';
+            }
+            
+            // Reload page after a short delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('game-status').textContent = error.message || 'An error occurred while ending the game.';
+        });
+    }
 }
 
 function askHint() {
@@ -72,7 +133,14 @@ function askHint() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question })
     })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(data => {
+                    throw new Error(data.error || "Failed to get hint");
+                });
+            }
+            return res.json();
+        })
         .then(data => {
             // Remove loading indicator
             hintsContainer.removeChild(loadingHint);
@@ -97,7 +165,7 @@ function askHint() {
                 hintsContainer.removeChild(loadingHint);
             }
             console.error("Error getting hint:", error);
-            showMessage(resultContainer, "Failed to get hint. Please try again.", "error");
+            showMessage(resultContainer, error.message || "Failed to get hint. Please try again.", "error");
         });
 }
 
@@ -115,7 +183,14 @@ function submitAnswer() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answer })
     })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(data => {
+                    throw new Error(data.error || "Failed to submit answer");
+                });
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.correct) {
                 // Show success message
@@ -135,7 +210,6 @@ function submitAnswer() {
                             <h3>Game Complete!</h3>
                             <p>Score: ${data.score || 100}</p>
                             <p>Time: ${data.time || gameTime.toFixed(2)} seconds</p>
-                            <button onclick="startGame()">Play Again</button>
                             <a href="/profile" class="button">View Profile</a>
                         </div>
                     `;
@@ -161,7 +235,7 @@ function submitAnswer() {
         })
         .catch(error => {
             console.error("Error submitting answer:", error);
-            showMessage(resultContainer, "Error submitting answer. Please try again.", "error");
+            showMessage(resultContainer, error.message || "Error submitting answer. Please try again.", "error");
         });
 }
 
