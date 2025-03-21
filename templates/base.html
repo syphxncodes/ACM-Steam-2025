@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HeadUp with AI</title>
+    <title>HeadsUp with AI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='images/ACM-Chapter.ico') }}" type="image/x-icon">
 </head>
@@ -12,7 +12,7 @@
         <div class="navbar-brand">
             <img src="{{ url_for('static', filename='images/ACM-Chapter.jpg') }}" alt="ACM Chapter Logo" class="navbar-logo">
         </div>
-        <a href="{{ url_for('index') }}" class="navbar-title">HeadUp with AI</a>
+        <a href="{{ url_for('index') }}" class="navbar-title">HeadsUp with AI</a>
         <div class="navbar-menu">
             <a href="{{ url_for('index') }}" class="navbar-item">Home</a>
             {% if current_user.is_authenticated %}
