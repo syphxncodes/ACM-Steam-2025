@@ -42,10 +42,15 @@ function startGame() {
             return res.json();
         })
         .then(data => {
-            document.getElementById("game-status").innerText = data.message;
             document.getElementById("game-area").style.display = "block";
             document.getElementById("hints").innerHTML = "";
             document.getElementById("result").innerHTML = "";
+            
+            // Hide the active game message
+            const activeGameMessage = document.querySelector(".alert.alert-warning");
+            if (activeGameMessage) {
+                activeGameMessage.style.display = "none";
+            }
             
             // Hide buttons when game starts
             if (document.getElementById("start-button")) {
@@ -59,9 +64,20 @@ function startGame() {
             }
             
             // Update word counter based on server response
-            // For continuing games, this would be different than 1
-            currentWordNumber = data.currentIndex || session["current_index"] + 1 || 1;
-            document.getElementById("current-word").innerText = `Word ${currentWordNumber} of 10`;
+            currentWordNumber = data.currentIndex || 1;
+            totalWords = data.totalWords || 10;
+            document.getElementById("current-word").innerText = `Word ${currentWordNumber} of ${totalWords}`;
+            
+            // Show "Continuing existing game" message only for the first word
+            if (data.message.includes("Continuing") && currentWordNumber === 1) {
+                document.getElementById("game-status").innerText = data.message;
+                // Hide the message after 3 seconds
+                setTimeout(() => {
+                    document.getElementById("game-status").innerText = "";
+                }, 3000);
+            } else {
+                document.getElementById("game-status").innerText = "";
+            }
             
             // Focus on question input
             if (questionInput) {
@@ -74,8 +90,15 @@ function startGame() {
         });
 }
 
+
 function endGame() {
     if (confirm("Are you sure you want to end your game? This cannot be undone.")) {
+        // Immediately hide the active game message
+        const activeGameMessage = document.querySelector(".alert.alert-warning");
+        if (activeGameMessage) {
+            activeGameMessage.style.display = "none";
+        }
+        
         fetch('/end_game', {
             method: 'POST',
             headers: {
@@ -113,6 +136,7 @@ function endGame() {
     }
 }
 
+
 function askHint() {
     const question = questionInput.value.trim();
     
@@ -146,11 +170,20 @@ function askHint() {
             hintsContainer.removeChild(loadingHint);
             
             if (data.hint) {
+                // Mark all existing hints as completed
+                const existingHints = document.querySelectorAll('.hint');
+                existingHints.forEach(hint => {
+                    hint.classList.add('completed');
+                });
+                
                 // Create hint element
                 const hintElement = document.createElement('div');
-                hintElement.className = 'hint';
+                hintElement.className = 'hint'; // New hint is not completed
                 hintElement.innerHTML = `<strong>Q: ${question}</strong><p>${data.hint}</p>`;
                 hintsContainer.appendChild(hintElement);
+                
+                // Auto-scroll to the bottom to show the newest hint
+                hintsContainer.scrollTop = hintsContainer.scrollHeight;
                 
                 // Clear input and focus
                 questionInput.value = "";
@@ -169,6 +202,8 @@ function askHint() {
         });
 }
 
+
+
 function submitAnswer() {
     const answer = answerInput.value.trim();
     
@@ -177,7 +212,7 @@ function submitAnswer() {
         answerInput.focus();
         return;
     }
-
+    
     fetch("/submit_answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -195,6 +230,12 @@ function submitAnswer() {
             if (data.correct) {
                 // Show success message
                 showMessage(resultContainer, data.message, "success");
+                
+                // Mark all hints as completed by adding a class
+                const allHints = document.querySelectorAll('.hint');
+                allHints.forEach(hint => {
+                    hint.classList.add('completed');
+                });
                 
                 // Clear inputs
                 answerInput.value = "";
@@ -239,15 +280,23 @@ function submitAnswer() {
         });
 }
 
+
 function showMessage(container, message, type) {
     container.innerText = message;
     container.className = `message ${type}`;
     
-    // Clear message after delay (for error messages)
-    if (type === "error") {
+    // Clear message after delay (for both error and success messages)
+    if (type === "error" || type === "success") {
         setTimeout(() => {
-            container.innerText = "";
-            container.className = "";
-        }, 3000);
+            // Add fade-out class first
+            container.classList.add('fade-out');
+            
+            // Then clear text after transition completes
+            setTimeout(() => {
+                container.innerText = "";
+                container.className = "";
+            }, 500); // This should match the transition duration in CSS
+        }, type === "error" ? 3000 : 2000); // 3 seconds for errors, 2 for success
     }
 }
+

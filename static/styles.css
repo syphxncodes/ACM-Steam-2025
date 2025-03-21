@@ -44,7 +44,7 @@ body {
 }
 
 .navbar-logo {
-    height: 60px;
+    height: 50px;
     width: auto;
     object-fit: contain;
 }
@@ -176,7 +176,16 @@ input:focus {
     margin-bottom: 0.5rem;
     color: var(--secondary-color);
 }
+.hint strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--secondary-color);
+}
 
+/* Add this for completed questions */
+.hint.completed {
+    border-left: 4px solid var(--success-color);
+}
 .message {
     margin-top: 1rem;
     padding: 0.75rem;
@@ -362,6 +371,22 @@ table th {
     margin-top: 1.5rem;
     margin-right: 1rem;
 }
+#in-game-end-button {
+    background-color: #4361ee; /* Match the primary blue color */
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    margin: 30px auto 20px; /* Top, horizontal, bottom margins */
+    display: block; /* Center the button */
+    width: auto;
+    min-width: 150px;
+}
+
+#in-game-end-button:hover {
+    background-color: #3a0ca3; /* Darker blue on hover */
+}
+/* Add this to your CSS */
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -395,7 +420,17 @@ table th {
     .navbar-logo {
         height: 30px;
     }
-    
+    /* Add this to your existing CSS */
+    .message.success {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: var(--success-color);
+        transition: opacity 0.5s ease-out;
+    }
+
+/* Add a class for fading out */
+    .message.fade-out {
+        opacity: 0;
+    }
     .stats {
         flex-direction: column;
     }

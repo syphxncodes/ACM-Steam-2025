@@ -35,6 +35,9 @@
                 <button onclick="submitAnswer()">Submit Answer</button>
                 <div id="result"></div>
             </div>
+            
+            <!-- Added End Game button at the bottom of game area -->
+            <button id="in-game-end-button" onclick="endGame()" class="btn-danger">End Game</button>
         </div>
     {% else %}
         <div class="auth-prompt">
@@ -48,6 +51,12 @@
     // Add endGame function to the existing script.js or include it here
     function endGame() {
         if (confirm("Are you sure you want to end your game? This cannot be undone.")) {
+            // Immediately hide the active game message
+            const activeGameMessage = document.querySelector(".alert.alert-warning");
+            if (activeGameMessage) {
+                activeGameMessage.style.display = "none";
+            }
+            
             fetch('/end_game', {
                 method: 'POST',
                 headers: {
@@ -61,6 +70,7 @@
                 document.getElementById('game-area').style.display = 'none';
                 document.getElementById('continue-button').style.display = 'none';
                 document.getElementById('end-button').style.display = 'none';
+                document.getElementById('in-game-end-button').style.display = 'none';
                 
                 // Reload page after a short delay
                 setTimeout(() => {
