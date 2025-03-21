@@ -33,12 +33,15 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # List of words (30 total, 10 randomly chosen per game)
-WORDS_POOL = ["Python", "Algorithm", "Database", "Neural Network", "Encryption",
+WORDS_POOL = ["Python", "Algorithm", "Database", "Encryption",
               "Compiler", "Blockchain", "Cloud Computing", "Big Data", "Cybersecurity",
               "Artificial Intelligence", "Machine Learning", "Internet of Things", "Quantum Computing",
               "API", "Bug", "Cache", "Data Structure", "Debugging", "Frontend",
-              "Backend", "Full Stack", "GraphQL", "HTTP", "Kernel",
-              "Linux", "Middleware", "Node.js", "Open Source", "React"]
+              "Backend", "Full Stack","HTTP",
+              "Linux", "Open Source","Deep Learning","Generative AI",
+              "RAM","ROM","Network","Server","Function","Loop","Byte","Interpreter","Data Science",
+              "SQL","GPU","HTTPS","HTML","CSS","LLM","List","Tuple","Dictionary","Hello World","Conditional Statements",
+              "Processor","Variable","Command Prompt","Ethical Hacking","IP Address","Trojan Horse"]
 
 def get_ai_hint(word, question):
     """Generate AI hints based on the user's question without directly revealing the word."""
